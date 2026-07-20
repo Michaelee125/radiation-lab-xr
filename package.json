@@ -1,0 +1,20 @@
+{
+  "name": "radiation-lab-webxr",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Offline classroom WebXR simulation of alpha, beta and gamma radiation",
+  "scripts": {
+    "dev": "node scripts/server.js",
+    "start": "node scripts/server.js",
+    "build": "node scripts/build.js",
+    "test": "node --test tests/*.test.js",
+    "check": "node scripts/check-project.js && node --test tests/*.test.js"
+  },
+  "dependencies": {
+    "aframe": "1.7.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#07111f">
+    <meta name="description" content="An offline WebXR classroom simulation of alpha, beta and gamma radiation shielding and GM detection.">
+    <title>Radiation Lab XR</title>
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="icon" href="./assets/icons/icon-192.png" type="image/png">
+    <link rel="stylesheet" href="./css/styles.css">
+    <script src="./vendor/aframe.min.js"></script>
+    <script type="module" src="./js/app.js"></script>
+  </head>
+  <body>
+    <main id="app-shell" aria-label="Radiation Lab XR simulation">
+      <div id="desktop-help">
+        <span class="brand-mark" aria-hidden="true">XR</span>
+        <div>
+          <strong>Radiation Lab</strong>
+          <span>Click controls. Drag a shield into the centre holder. Use Enter VR on Quest.</span>
+        </div>
+      </div>
+      <div id="offline-status" role="status" aria-live="polite" data-ready="false">Preparing offline use…</div>
+      <div id="toast" role="status" aria-live="polite" hidden></div>
+
+      <a-scene
+        id="lab-scene"
+        background="color: #07111f"
+        renderer="antialias: true; colorManagement: true; physicallyCorrectLights: false; precision: medium"
+        webxr="optionalFeatures: local-floor, bounded-floor; referenceSpaceType: local-floor"
+        vr-mode-ui="enabled: true"
+        loading-screen="dotsColor: #49d7ff; backgroundColor: #07111f"
+        device-orientation-permission-ui="enabled: false">
+
+        <a-assets timeout="10000">
+          <a-mixin id="local-font" text="font: ./assets/fonts/Roboto-msdf.json; color: #f4f8ff; anchor: center; align: center; wrapCount: 44"></a-mixin>
+          <a-mixin id="panel" geometry="primitive: plane" material="color: #111d31; shader: flat"></a-mixin>
+          <a-mixin id="button" geometry="primitive: plane; width: 0.72; height: 0.29" material="color: #243149; shader: flat; side: double"></a-mixin>
+        </a-assets>
+
+        <a-entity light="type: ambient; color: #dbe9ff; intensity: 1.15"></a-entity>
+        <a-entity light="type: directional; color: #b9d8ff; intensity: 0.55" position="-2 4 3"></a-entity>
+
+        <a-plane position="0 0 -2.2" rotation="-90 0 0" width="8" height="8" color="#0b1726"></a-plane>
+        <a-plane position="0 2.1 -3.25" width="7.5" height="4.2" color="#0c1828"></a-plane>
+        <a-box position="0 0.64 -2.35" width="4.4" height="0.11" depth="1.05" color="#1d2b3c"></a-box>
+        <a-box position="-1.8 0.31 -2.35" width="0.12" height="0.66" depth="0.8" color="#26384c"></a-box>
+        <a-box position="1.8 0.31 -2.35" width="0.12" height="0.66" depth="0.8" color="#26384c"></a-box>
+
+        <a-entity id="notice-panel" mixin="panel" position="0 3.18 -3.03" geometry="width: 4.2; height: 0.34" material="color: #17243a">
+          <a-text mixin="local-font" position="0 0 0.01" width="3.9" wrap-count="78"
+            value="SCHEMATIC EDUCATIONAL MODEL - PARTICLE SIZES, SPEEDS AND PATHS ARE NOT TO SCALE."></a-text>
+        </a-entity>
+
+        <a-entity id="control-panel" mixin="panel" position="0 2.66 -3" geometry="width: 3.85; height: 0.78">
+          <a-text mixin="local-font" position="0 0.29 0.012" width="2.1" value="SOURCE & EXPERIMENT CONTROLS"></a-text>
+
+          <a-entity id="alpha-button" class="interactive" mixin="button" position="-1.22 0.04 0.02" ui-button="action: toggle-radiation; value: alpha">
+            <a-text id="alpha-button-label" mixin="local-font" position="0 0 0.01" width="0.64" value="[ON] Alpha"></a-text>
+          </a-entity>
+          <a-entity id="beta-button" class="interactive" mixin="button" position="-0.41 0.04 0.02" ui-button="action: toggle-radiation; value: beta">
+            <a-text id="beta-button-label" mixin="local-font" position="0 0 0.01" width="0.64" value="[OFF] Beta"></a-text>
+          </a-entity>
+          <a-entity id="gamma-button" class="interactive" mixin="button" position="0.41 0.04 0.02" ui-button="action: toggle-radiation; value: gamma">
+            <a-text id="gamma-button-label" mixin="local-font" position="0 0 0.01" width="0.64" value="[OFF] Gamma"></a-text>
+          </a-entity>
+          <a-entity id="paths-button" class="interactive" mixin="button" position="1.22 0.04 0.02" ui-button="action: toggle-paths">
+            <a-text id="paths-button-label" mixin="local-font" position="0 0 0.01" width="0.64" value="[ON] Paths"></a-text>
+          </a-entity>
+
+          <a-entity id="sound-button" class="interactive" mixin="button" position="-1.22 -0.27 0.02" ui-button="action: toggle-sound">
+            <a-text id="sound-button-label" mixin="local-font" position="0 0 0.01" width="0.64" value="[ON] Enable sound"></a-text>
+          </a-entity>
+          <a-entity id="remove-button" class="interactive" mixin="button" position="-0.41 -0.27 0.02" ui-button="action: remove-shield">
+            <a-text mixin="local-font" position="0 0 0.01" width="0.64" value="NO SHIELD"></a-text>
+          </a-entity>
+          <a-entity id="reset-button" class="interactive" mixin="button" position="0.41 -0.27 0.02" ui-button="action: reset">
+            <a-text mixin="local-font" position="0 0 0.01" width="0.64" value="RESET"></a-text>
+          </a-entity>
+          <a-text id="offline-scene-status" mixin="local-font" position="1.22 -0.27 0.02" width="0.7" color="#76efb6" value="CACHING FOR OFFLINE USE..."></a-text>
+        </a-entity>
+
+        <a-entity id="legend-panel" mixin="panel" position="-1.47 1.98 -3" geometry="width: 1.42; height: 0.86">
+          <a-text mixin="local-font" position="0 0.35 0.01" width="1.15" value="MODEL LEGEND"></a-text>
+          <a-text mixin="local-font" position="-0.63 0.18 0.01" width="1.18" align="left" anchor="left" color="#ffb347" wrap-count="38"
+            value="Alpha particle: helium nucleus, 2 protons + 2 neutrons"></a-text>
+          <a-text mixin="local-font" position="-0.63 -0.05 0.01" width="1.18" align="left" anchor="left" color="#49d7ff" wrap-count="38"
+            value="Beta-minus particle: high-speed electron"></a-text>
+          <a-text mixin="local-font" position="-0.63 -0.26 0.01" width="1.18" align="left" anchor="left" color="#d998ff" wrap-count="38"
+            value="Gamma radiation: high-energy electromagnetic radiation"></a-text>
+        </a-entity>
+
+        <a-entity id="gm-display-panel" mixin="panel" position="1.47 1.98 -3" geometry="width: 1.42; height: 0.86" material="color: #07151d">
+          <a-text mixin="local-font" position="0 0.35 0.01" width="1.05" color="#76efb6" value="GM TUBE - TOTAL COUNT"></a-text>
+          <a-text id="count-display" mixin="local-font" position="0 0.13 0.01" width="1.04" color="#8bffbf" value="000"></a-text>
+          <a-text id="rate-display" mixin="local-font" position="0 -0.04 0.01" width="1.08" value="LAST 1 s: 0 counts | 0 cps"></a-text>
+          <a-text id="average-display" mixin="local-font" position="0 -0.18 0.01" width="1.08" value="8 s ROLLING AVG: 0.0 cps"></a-text>
+          <a-text id="gm-shield-display" mixin="local-font" position="0 -0.3 0.01" width="1.08" value="Shield: NO SHIELD"></a-text>
+          <a-text id="gm-radiation-display" mixin="local-font" position="0 -0.4 0.01" width="1.08" value="Sources: Alpha"></a-text>
+        </a-entity>
+
+        <a-entity id="source-unit" position="-1.75 1.39 -2.35">
+          <a-cylinder rotation="0 0 90" radius="0.18" height="0.35" color="#4a5568"></a-cylinder>
+          <a-cylinder position="0.2 0 0" rotation="0 0 90" radius="0.105" height="0.1" color="#ffb347"></a-cylinder>
+          <a-text mixin="local-font" position="0 0.36 0" width="0.75" value="RADIOACTIVE SOURCE"></a-text>
+          <a-text mixin="local-font" position="0 0.03 0.19" width="0.24" color="#07111f" value="R"></a-text>
+        </a-entity>
+
+        <a-entity id="shield-holder">
+          <a-box position="0 1.38 -2.7" width="0.07" height="0.65" depth="0.07" color="#4a6078"></a-box>
+          <a-box position="0 1.38 -2" width="0.07" height="0.65" depth="0.07" color="#4a6078"></a-box>
+          <a-box position="0 1.06 -2.35" width="0.22" height="0.06" depth="0.78" color="#4a6078"></a-box>
+          <a-text id="active-shield-label" mixin="local-font" position="0 1.9 -2.35" width="1.15" value="ACTIVE SHIELD: NO SHIELD"></a-text>
+        </a-entity>
+
+        <a-entity id="material-rack">
+          <a-box position="0 0.72 -1.76" width="1.75" height="0.09" depth="0.64" color="#2b3d51"></a-box>
+          <a-text mixin="local-font" position="0 0.7 -1.42" rotation="-65 0 0" width="1.15" value="SHIELD RACK - DRAG TO HOLDER"></a-text>
+
+          <a-entity id="paper-shield" class="shield-interactable" position="-0.56 0.82 -1.76"
+            geometry="primitive: box; width: 0.025; height: 0.42; depth: 0.48"
+            material="color: #f3ead2; roughness: 1"
+            shield-object="type: paper">
+            <a-text mixin="local-font" position="0 0.32 0" rotation="0 0 0" width="0.55" color="#f3ead2" value="PAPER"></a-text>
+          </a-entity>
+          <a-entity id="aluminium-shield" class="shield-interactable" position="0 0.82 -1.76"
+            geometry="primitive: box; width: 0.08; height: 0.44; depth: 0.5"
+            material="color: #aeb9c6; metalness: 0.72; roughness: 0.32"
+            shield-object="type: aluminium">
+            <a-text mixin="local-font" position="0 0.32 0" width="0.68" color="#dce5ef" value="ALUMINIUM"></a-text>
+          </a-entity>
+          <a-entity id="lead-shield" class="shield-interactable" position="0.56 0.82 -1.76"
+            geometry="primitive: box; width: 0.2; height: 0.48; depth: 0.54"
+            material="color: #56606d; metalness: 0.42; roughness: 0.75"
+            shield-object="type: lead">
+            <a-text mixin="local-font" position="0 0.34 0" width="0.55" color="#c9d0d8" value="LEAD"></a-text>
+          </a-entity>
+        </a-entity>
+
+        <a-entity id="gm-tube" position="1.72 1.49 -2.35">
+          <a-cylinder rotation="0 0 90" radius="0.12" height="0.62" color="#d7dee8"></a-cylinder>
+          <a-cylinder position="-0.34 0 0" rotation="0 0 90" radius="0.08" height="0.1" color="#272f3b"></a-cylinder>
+          <a-cylinder position="0.34 0 0" rotation="0 0 90" radius="0.13" height="0.1" color="#404b5b"></a-cylinder>
+          <a-text mixin="local-font" position="0 0.3 0" width="0.75" value="GM TUBE"></a-text>
+        </a-entity>
+
+        <a-entity id="particle-field" position="0 0 -2.35" radiation-emitter></a-entity>
+
+        <a-entity id="explanation-panel" mixin="panel" position="0 0.31 -1.45" rotation="-35 0 0" geometry="width: 2.55; height: 0.48">
+          <a-text mixin="local-font" position="0 0.18 0.01" width="0.9" color="#76efb6" value="WHAT THE MODEL SHOWS"></a-text>
+          <a-text id="outcome-line-1" mixin="local-font" position="0 0.075 0.01" width="1.85" value="Alpha reaches the detector without shielding."></a-text>
+          <a-text id="outcome-line-2" mixin="local-font" position="0 -0.015 0.01" width="1.85" value=""></a-text>
+          <a-text id="outcome-line-3" mixin="local-font" position="0 -0.105 0.01" width="1.85" value=""></a-text>
+          <a-text mixin="local-font" position="0 -0.195 0.01" width="1.75" color="#d998ff"
+            value="Gamma radiation is attenuated rather than completely stopped."></a-text>
+        </a-entity>
+
+        <a-entity id="camera-rig" position="0 0 0.75">
+          <a-camera id="main-camera" position="0 1.55 0" look-controls="pointerLockEnabled: false; mouseEnabled: false; touchEnabled: false" wasd-controls="enabled: false">
+            <a-entity id="mouse-cursor" cursor="rayOrigin: mouse; fuse: false" raycaster="objects: .interactive, .shield-interactable; far: 10"></a-entity>
+          </a-camera>
+          <a-entity id="left-controller" laser-controls="hand: left" raycaster="objects: .interactive, .shield-interactable; far: 10; lineColor: #49d7ff; lineOpacity: 0.8" quest-shield-grab controller-help-feedback></a-entity>
+          <a-entity id="right-controller" laser-controls="hand: right" raycaster="objects: .interactive, .shield-interactable; far: 10; lineColor: #49d7ff; lineOpacity: 0.8" quest-shield-grab controller-help-feedback></a-entity>
+        </a-entity>
+
+      </a-scene>
+    </main>
+    <noscript>This simulation requires JavaScript.</noscript>
+  </body>
+</html>
