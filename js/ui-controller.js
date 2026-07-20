@@ -1,4 +1,4 @@
-import { RADIATION_CONFIG, RADIATION_TYPES } from './config.js';
+import { PHYSICS_CONFIG, RADIATION_CONFIG, RADIATION_TYPES } from './config.js';
 import { describeOutcome } from './physics-model.js';
 
 const ACTIVE_COLOR = '#1f7a5a';
@@ -107,7 +107,10 @@ export class UIController {
     setText('active-shield-label', `ACTIVE SHIELD: ${shieldLabel}`);
     setText('count-display', String(Math.round(state.instantaneousCounts)).padStart(3, '0'));
     setText('rate-display', `LAST 1 s: ${state.countRate.toFixed(0)} counts | ${state.countRate.toFixed(0)} cps`);
-    setText('average-display', `8 s ROLLING AVG: ${state.rollingAverage.toFixed(1)} cps`);
+    setText(
+      'average-display',
+      `${PHYSICS_CONFIG.rollingAverageSeconds} s ROLLING AVG: ${state.rollingAverage.toFixed(1)} cps`
+    );
     setText('gm-shield-display', `Shield: ${shieldLabel}`);
     setText('gm-radiation-display', `Sources: ${selectedNames(state)}`);
 

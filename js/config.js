@@ -21,7 +21,7 @@ export const RADIATION_CONFIG = Object.freeze({
     description: 'Alpha particle: helium nucleus, 2 protons + 2 neutrons',
     color: '#ffb347',
     trailColor: '#ff9f43',
-    laneY: 1.36,
+    laneY: 1.28,
     speed: 0.62,
     emissionIntervalMs: 1050,
     poolSize: 7
@@ -31,7 +31,7 @@ export const RADIATION_CONFIG = Object.freeze({
     description: 'Beta-minus particle: high-speed electron',
     color: '#49d7ff',
     trailColor: '#00c2ff',
-    laneY: 1.52,
+    laneY: 1.42,
     speed: 0.98,
     emissionIntervalMs: 760,
     poolSize: 9
@@ -41,7 +41,7 @@ export const RADIATION_CONFIG = Object.freeze({
     description: 'Gamma radiation: high-energy electromagnetic radiation',
     color: '#d998ff',
     trailColor: '#c56cff',
-    laneY: 1.68,
+    laneY: 1.56,
     speed: 1.32,
     emissionIntervalMs: 590,
     poolSize: 11

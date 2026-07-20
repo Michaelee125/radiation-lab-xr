@@ -32,7 +32,7 @@ Do not open `index.html` directly from the filesystem; modules and the service w
 4. Drag paper, aluminium or lead from the rack into the centre holder. In VR, point at a material, hold the trigger, point at the holder, and release.
 5. Use **Show particle paths** to hide only the trails. Particle motion and the count model continue unchanged.
 6. Read the most recent one-second count, cps, eight-second rolling average, active shield and selected sources beside the GM tube.
-7. Use **No shield** to return the active shield to the rack, or **Reset** to restore Alpha-only, no shield, paths on and sound on.
+7. Use **No shield** to return the active shield to the rack, or **Reset** to restore Alpha-only, no shield, paths on and sound on. Resetting the experiment does not clear the offline-ready installation status.
 
 The GM tube reports a total count. It does not identify which radiation type caused an event.
 

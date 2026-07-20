@@ -83,7 +83,10 @@ export class AppState extends EventTarget {
   }
 
   reset() {
-    this.value = cloneDefaults();
+    // Offline readiness describes the installed app shell, not the experiment.
+    // Keep it stable when classroom users reset the apparatus.
+    const offlineReady = this.value.offlineReady;
+    this.value = { ...cloneDefaults(), offlineReady };
     this.#notify('reset');
   }
 

@@ -37,6 +37,15 @@ test('reset restores documented defaults', () => {
   assert.deepEqual(state.snapshot(), { ...DEFAULT_STATE, selectedRadiation: { ...DEFAULT_STATE.selectedRadiation } });
 });
 
+test('reset preserves the offline-ready installation status', () => {
+  const state = new AppState();
+  state.setOfflineReady(true);
+  state.setShield('lead');
+  state.reset();
+  assert.equal(state.snapshot().offlineReady, true);
+  assert.equal(state.snapshot().activeShield, DEFAULT_STATE.activeShield);
+});
+
 test('path visibility does not affect detector readings', () => {
   const state = new AppState({ selectedRadiation: { alpha: true, beta: true, gamma: true } });
   const before = expectedCountRate(state.snapshot().selectedRadiation, state.snapshot().activeShield);

@@ -154,19 +154,6 @@ export function registerShieldComponents() {
     schema: { type: { type: 'string' } },
     init() {
       this.el.sceneEl.systems['shield-manager'].registerMaterial(this.data.type, this.el);
-      this.onMouseDown = (event) => {
-        const raycasterEl = event.detail?.cursorEl || document.querySelector('#mouse-cursor');
-        this.el.sceneEl.systems['shield-manager'].beginGrab(
-          this.data.type,
-          this.el,
-          raycasterEl,
-          event.detail?.intersection
-        );
-      };
-      this.el.addEventListener('mousedown', this.onMouseDown);
-    },
-    remove() {
-      this.el.removeEventListener('mousedown', this.onMouseDown);
     }
   });
 
