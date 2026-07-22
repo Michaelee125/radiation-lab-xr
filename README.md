@@ -4,6 +4,10 @@ Radiation Lab XR is a compact, offline-first A-Frame/WebXR teaching simulation f
 
 The simulation is deliberately schematic. Particle size, separation, paths and visible speeds are not to scale, and the transmission factors are simplified classroom values rather than universal material constants.
 
+## Live demo
+
+Open the deployed HTTPS version at [michaelee125.github.io/radiation-lab-xr](https://michaelee125.github.io/radiation-lab-xr/). The same URL works in a desktop browser and in Meta Quest Browser; select **Enter VR** on the headset to start the immersive WebXR view.
+
 ## Quick start
 
 The checked-in `vendor/aframe.min.js`, local font and icons are sufficient at runtime. Node.js 20 or newer is needed only for the included development server and tests.
