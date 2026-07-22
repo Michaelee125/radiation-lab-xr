@@ -76,6 +76,7 @@ export const DEFAULT_STATE = Object.freeze({
   activeShield: 'none',
   showPaths: true,
   controlsVisible: true,
+  mysteryMode: false,
   soundEnabled: true,
   instantaneousCounts: 0,
   countRate: 0,

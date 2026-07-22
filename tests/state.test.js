@@ -32,6 +32,7 @@ test('reset restores documented defaults', () => {
   state.setShield('lead');
   state.setPaths(false);
   state.setControlsVisible(false);
+  state.setMysteryMode(true);
   state.setSound(false);
   state.setCounter({ instantaneousCounts: 17, rollingAverage: 12.3 });
   state.reset();
@@ -60,6 +61,21 @@ test('source and experiment controls can be hidden and shown', () => {
   state.toggleControls();
   assert.equal(state.snapshot().controlsVisible, false);
   state.toggleControls();
+  assert.equal(state.snapshot().controlsVisible, true);
+});
+
+test('mystery mode hides radiation visuals and controls until it is exited', () => {
+  const state = new AppState();
+  state.setMysteryMode(true);
+  assert.equal(state.snapshot().mysteryMode, true);
+  assert.equal(state.snapshot().showPaths, false);
+  assert.equal(state.snapshot().controlsVisible, false);
+  assert.equal(state.setPaths(true), false);
+  assert.equal(state.setControlsVisible(true), false);
+
+  state.toggleMysteryMode();
+  assert.equal(state.snapshot().mysteryMode, false);
+  assert.equal(state.snapshot().showPaths, true);
   assert.equal(state.snapshot().controlsVisible, true);
 });
 

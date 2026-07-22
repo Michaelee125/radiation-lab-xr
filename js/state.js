@@ -19,6 +19,7 @@ export class AppState extends EventTarget {
       }
     };
     this.#ensureRadiationSelection();
+    this.#ensureModeInvariants();
   }
 
   snapshot() {
@@ -53,21 +54,37 @@ export class AppState extends EventTarget {
   }
 
   setPaths(visible) {
+    if (this.value.mysteryMode && visible) return false;
     this.value.showPaths = Boolean(visible);
     this.#notify('showPaths');
+    return true;
   }
 
   togglePaths() {
-    this.setPaths(!this.value.showPaths);
+    return this.setPaths(!this.value.showPaths);
   }
 
   setControlsVisible(visible) {
+    if (this.value.mysteryMode && visible) return false;
     this.value.controlsVisible = Boolean(visible);
     this.#notify('controlsVisible');
+    return true;
   }
 
   toggleControls() {
-    this.setControlsVisible(!this.value.controlsVisible);
+    return this.setControlsVisible(!this.value.controlsVisible);
+  }
+
+  setMysteryMode(enabled) {
+    const mysteryMode = Boolean(enabled);
+    this.value.mysteryMode = mysteryMode;
+    this.value.showPaths = !mysteryMode;
+    this.value.controlsVisible = !mysteryMode;
+    this.#notify('mysteryMode');
+  }
+
+  toggleMysteryMode() {
+    this.setMysteryMode(!this.value.mysteryMode);
   }
 
   setSound(enabled) {
@@ -103,6 +120,12 @@ export class AppState extends EventTarget {
     if (!RADIATION_TYPES.some((type) => this.value.selectedRadiation[type])) {
       this.value.selectedRadiation.alpha = true;
     }
+  }
+
+  #ensureModeInvariants() {
+    if (!this.value.mysteryMode) return;
+    this.value.showPaths = false;
+    this.value.controlsVisible = false;
   }
 
   #notify(reason) {

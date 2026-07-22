@@ -27,16 +27,23 @@ for (const file of authoredRuntimeFiles) {
 }
 
 const html = await readFile('index.html', 'utf8');
+const interactiveSources = [
+  html,
+  await readFile('js/ui-controller.js', 'utf8'),
+  await readFile('js/radiation-emitter.js', 'utf8'),
+  await readFile('js/quest-controls.js', 'utf8')
+].join('\n');
 for (const marker of [
   'alpha-particle-model', 'beta-particle-model', 'gamma-particle-model',
   'paper-shield', 'aluminium-shield', 'lead-shield', 'quest-shield-grab',
-  'controls-toggle-button', 'gm-analogue-meter', 'desktop-right-drag-look', 'Radiation visuals',
+  'controls-toggle-button', 'mystery-mode-button', 'gm-analogue-meter',
+  'analogueMeterAngle', 'desktop-right-drag-look', 'Radiation visuals',
   'EXAM MODEL: LEAD MAKES THE GM READING ZERO (BACKGROUND OMITTED).'
 ]) {
   if (marker === 'Radiation visuals') {
     assert.match(await readFile('README.md', 'utf8'), /radiation visuals/i);
   } else {
-    assert.match(html + await readFile('js/radiation-emitter.js', 'utf8'), new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+    assert.match(interactiveSources, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   }
 }
 

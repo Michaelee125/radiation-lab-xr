@@ -20,6 +20,12 @@ function selectedNames(state) {
     .join(' + ');
 }
 
+export function analogueMeterAngle(countRate) {
+  const safeRate = Math.max(0, Number(countRate) || 0);
+  const meterFraction = Math.min(1, safeRate / PHYSICS_CONFIG.analogueMeterMaxCps);
+  return 70 - meterFraction * 140;
+}
+
 export function registerUIComponents() {
   AFRAME.registerComponent('ui-button', {
     schema: {
@@ -47,6 +53,8 @@ export class UIController {
     this.appState = appState;
     this.gmCounter = gmCounter;
     this.toastTimer = null;
+    this.meterAngle = 70;
+    this.meterAnimationFrame = null;
     this.unsubscribe = appState.subscribe(({ state }) => this.render(state));
     this.audioListener = () => this.render(this.appState.snapshot());
     gmCounter.addEventListener('audiochange', this.audioListener);
@@ -66,13 +74,23 @@ export class UIController {
         this.appState.togglePaths();
         this.showToast(this.appState.snapshot().showPaths
           ? 'Radiation models and paths revealed.'
-          : 'Mystery mode: radiation models and paths hidden.');
+          : 'Radiation models and paths hidden.');
         break;
       case 'toggle-controls':
+        if (this.appState.snapshot().mysteryMode) {
+          this.showToast('Exit Mystery Mode before showing the control panel.');
+          break;
+        }
         this.appState.toggleControls();
         this.showToast(this.appState.snapshot().controlsVisible
           ? 'Source and experiment controls shown.'
           : 'Source and experiment controls hidden.');
+        break;
+      case 'toggle-mystery':
+        this.appState.toggleMysteryMode();
+        this.showToast(this.appState.snapshot().mysteryMode
+          ? 'Mystery Mode: sources, paths and controls are hidden.'
+          : 'Mystery Mode ended: visuals and controls restored.');
         break;
       case 'toggle-sound':
         if (this.appState.snapshot().soundEnabled && !audioWasReady) {
@@ -120,16 +138,26 @@ export class UIController {
       document.getElementById(id)?.setAttribute('material', 'color', ACTION_COLOR);
     }
 
-    document.getElementById('control-panel')?.setAttribute('visible', state.controlsVisible);
+    const controlsInteractive = state.controlsVisible && !state.mysteryMode;
+    document.getElementById('control-panel')?.setAttribute('visible', controlsInteractive);
     for (const id of CONTROL_BUTTON_IDS) {
-      document.getElementById(id)?.classList.toggle('interactive', state.controlsVisible);
+      document.getElementById(id)?.classList.toggle('interactive', controlsInteractive);
     }
-    document.getElementById('controls-toggle-button')?.setAttribute(
+    const controlsToggle = document.getElementById('controls-toggle-button');
+    controlsToggle?.setAttribute('visible', !state.mysteryMode);
+    controlsToggle?.classList.toggle('interactive', !state.mysteryMode);
+    controlsToggle?.setAttribute(
       'material',
       'color',
       state.controlsVisible ? ACTION_COLOR : ACTIVE_COLOR
     );
     setText('controls-toggle-label', state.controlsVisible ? '[HIDE] CONTROLS' : '[SHOW] CONTROLS');
+    document.getElementById('mystery-mode-button')?.setAttribute(
+      'material',
+      'color',
+      state.mysteryMode ? ACTIVE_COLOR : ACTION_COLOR
+    );
+    setText('mystery-mode-label', state.mysteryMode ? '[EXIT] MYSTERY' : '[START] MYSTERY');
 
     const shieldLabel = state.activeShield === 'none'
       ? 'NO SHIELD'
@@ -144,14 +172,15 @@ export class UIController {
     setText('gm-shield-display', `SHIELD: ${shieldLabel}`);
     setText(
       'gm-radiation-display',
-      state.showPaths ? `SOURCES: ${selectedNames(state).toUpperCase()}` : 'SOURCES: HIDDEN - INFER FROM EVIDENCE'
+      state.showPaths && !state.mysteryMode
+        ? `SOURCES: ${selectedNames(state).toUpperCase()}`
+        : 'SOURCES: HIDDEN - INFER FROM EVIDENCE'
     );
 
-    const meterFraction = Math.min(1, state.countRate / PHYSICS_CONFIG.analogueMeterMaxCps);
-    const meterAngle = 70 - meterFraction * 140;
-    document.getElementById('gm-meter-needle')?.setAttribute('rotation', `0 0 ${meterAngle.toFixed(1)}`);
+    const meterAngle = analogueMeterAngle(state.countRate);
+    this.#animateMeterNeedle(meterAngle);
 
-    const outcomes = state.showPaths
+    const outcomes = state.showPaths && !state.mysteryMode
       ? RADIATION_TYPES
         .filter((type) => state.selectedRadiation[type])
         .map((type) => describeOutcome(type, state.activeShield))
@@ -180,6 +209,38 @@ export class UIController {
     toast.textContent = message;
     toast.hidden = false;
     this.toastTimer = window.setTimeout(() => { toast.hidden = true; }, 2600);
+  }
+
+  #animateMeterNeedle(targetAngle) {
+    const needle = document.getElementById('gm-meter-needle');
+    if (!needle) return;
+    const safeTarget = Number.isFinite(targetAngle) ? targetAngle : 70;
+    needle.setAttribute('data-target-angle', safeTarget.toFixed(1));
+    window.cancelAnimationFrame(this.meterAnimationFrame);
+
+    if (!needle.object3D || Math.abs(safeTarget - this.meterAngle) < 0.05) {
+      this.meterAngle = safeTarget;
+      needle.setAttribute('rotation', `0 0 ${safeTarget.toFixed(1)}`);
+      needle.setAttribute('data-current-angle', safeTarget.toFixed(1));
+      return;
+    }
+
+    const startAngle = this.meterAngle;
+    const startTime = window.performance.now();
+    const durationMs = 620;
+    const animate = (time) => {
+      const progress = Math.min(1, (time - startTime) / durationMs);
+      const eased = 1 - (1 - progress) ** 3;
+      this.meterAngle = startAngle + (safeTarget - startAngle) * eased;
+      needle.object3D.rotation.z = this.meterAngle * Math.PI / 180;
+      needle.setAttribute('data-current-angle', this.meterAngle.toFixed(1));
+      if (progress < 1) {
+        this.meterAnimationFrame = window.requestAnimationFrame(animate);
+      } else {
+        needle.setAttribute('rotation', `0 0 ${safeTarget.toFixed(1)}`);
+      }
+    };
+    this.meterAnimationFrame = window.requestAnimationFrame(animate);
   }
 
   #updateToggle(buttonId, labelId, active, label, exactLabel = false) {

@@ -18,6 +18,7 @@ Record the headset model, Quest OS version, Quest Browser version, deployed HTTP
 - [ ] With the right controller, repeat on Beta. Confirm both controller rays select buttons reliably.
 - [ ] Test Gamma, Radiation visuals, Sound, No shield and Reset with a mix of left and right controllers.
 - [ ] Select **Hide controls** and confirm the complete source/experiment panel disappears while a reachable **Show controls** button remains. Reveal the panel again.
+- [ ] Select **Start Mystery** and confirm the complete top control panel, every radiation model and every trail disappear together. Confirm **Exit Mystery** remains reachable and restores them.
 - [ ] Try to turn off the only active radiation type. Confirm it remains on and a clear message appears.
 - [ ] Confirm selected controls differ by state text and border/panel appearance, not colour alone.
 
@@ -56,20 +57,21 @@ For each row, confirm the control panel, separate visual lanes, GM source line a
 - [ ] Select Gamma only with aluminium. Confirm most gamma wave packets pass.
 - [ ] Keep Gamma only, insert lead. Confirm all gamma packets stop at lead and the main count, cps and rolling average immediately become `0`.
 - [ ] Enable Alpha + Beta + Gamma while lead remains active. Confirm all three source types stop at lead and every GM reading remains `0`.
-- [ ] Confirm the analogue needle and large CPS number update about once per second and the rolling average changes more smoothly.
+- [ ] Confirm the analogue needle visibly glides to a new angle whenever the one-second count changes, and the enlarged high-contrast CPS number is readable without leaning.
 - [ ] Confirm the display shows the most recent one-second count, cps, rolling average, active shield and selected sources while radiation visuals are revealed.
 - [ ] Confirm no wording claims the GM tube identifies individual radiation types.
 
 ## Mystery visuals, sound and reset
 
 - [ ] With all three sources active, hide Radiation visuals. Confirm every radiation model and trail disappears while the analogue meter, numerical readings and shielding physics continue updating.
+- [ ] Enter Mystery Mode and confirm it additionally hides the complete top control panel without stopping the GM counter.
 - [ ] Confirm mystery mode masks the source answer on the GM panel and replaces the outcome lines with prompts to infer the source from evidence.
 - [ ] Reveal Radiation visuals. Confirm alpha has a solid trail, beta a dashed trail and gamma a wave-like trail, and the explanatory answers return.
 - [ ] Insert a blocking shield and confirm an absorbed particle's trail stops/disappears at the shield rather than continuing to the detector.
 - [ ] Select **Enable sound** after entering VR. Confirm short Geiger clicks are audible.
 - [ ] Use all sources with no shield. Confirm the audio stays intelligible and capped while the numerical reading remains higher and uncapped.
 - [ ] Turn sound off and on. Confirm numerical counts are unaffected.
-- [ ] Change several controls, hide the control panel and radiation visuals, and insert lead. Press Reset and confirm Alpha only, no shield, radiation visuals on, controls visible, sound on and cleared/restarted readings.
+- [ ] Change several controls, enter Mystery Mode and insert lead. Exit Mystery, then press Reset and confirm Alpha only, no shield, Mystery Mode off, radiation visuals on, controls visible, sound on and cleared/restarted readings.
 
 ## Offline launch
 
@@ -77,7 +79,7 @@ For each row, confirm the control panel, separate visual lanes, GM source line a
 - [ ] Turn Quest Wi-Fi off.
 - [ ] Reopen the installed PWA, home shortcut or exact bookmarked URL.
 - [ ] Confirm the complete lab loads without a network error and A-Frame, text, icons and all scripts work.
-- [ ] Enter VR offline and repeat one radiation toggle, one shield insertion, Radiation visuals, Hide/Show controls and Reset.
+- [ ] Enter VR offline and repeat one radiation toggle, one shield insertion, Mystery Mode, Hide/Show controls and Reset.
 - [ ] Restore Wi-Fi after testing.
 
 ## Sign-off
