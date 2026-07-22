@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'radiation-lab-v1.0.10';
+const CACHE_VERSION = 'radiation-lab-v1.0.11';
 const APP_SHELL = [
   './',
   './index.html',

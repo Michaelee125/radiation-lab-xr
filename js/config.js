@@ -15,7 +15,8 @@ export const PHYSICS_CONFIG = Object.freeze({
   // Lead is also treated as suppressing the background so the classroom GM display is exactly zero.
   backgroundTransmission: Object.freeze({ none: 1.0, paper: 1.0, aluminium: 1.0, lead: 0.0 }),
   rollingAverageSeconds: 8,
-  maximumAudibleClicksPerSecond: 18
+  maximumAudibleClicksPerSecond: 18,
+  analogueMeterMaxCps: 100
 });
 
 export const RADIATION_CONFIG = Object.freeze({
@@ -74,6 +75,7 @@ export const DEFAULT_STATE = Object.freeze({
   selectedRadiation: Object.freeze({ alpha: true, beta: false, gamma: false }),
   activeShield: 'none',
   showPaths: true,
+  controlsVisible: true,
   soundEnabled: true,
   instantaneousCounts: 0,
   countRate: 0,

@@ -31,6 +31,7 @@ test('reset restores documented defaults', () => {
   state.toggleRadiation('beta');
   state.setShield('lead');
   state.setPaths(false);
+  state.setControlsVisible(false);
   state.setSound(false);
   state.setCounter({ instantaneousCounts: 17, rollingAverage: 12.3 });
   state.reset();
@@ -46,12 +47,20 @@ test('reset preserves the offline-ready installation status', () => {
   assert.equal(state.snapshot().activeShield, DEFAULT_STATE.activeShield);
 });
 
-test('path visibility does not affect detector readings', () => {
+test('radiation visual visibility does not affect detector readings', () => {
   const state = new AppState({ selectedRadiation: { alpha: true, beta: true, gamma: true } });
   const before = expectedCountRate(state.snapshot().selectedRadiation, state.snapshot().activeShield);
   state.setPaths(false);
   const after = expectedCountRate(state.snapshot().selectedRadiation, state.snapshot().activeShield);
   assert.equal(before, after);
+});
+
+test('source and experiment controls can be hidden and shown', () => {
+  const state = new AppState();
+  state.toggleControls();
+  assert.equal(state.snapshot().controlsVisible, false);
+  state.toggleControls();
+  assert.equal(state.snapshot().controlsVisible, true);
 });
 
 test('only one shield state can be active at a time', () => {

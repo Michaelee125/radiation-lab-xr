@@ -19,6 +19,8 @@ npm run dev
 
 Open `http://127.0.0.1:4173`. Localhost is a secure-context exception for service workers and desktop development. WebXR on a Quest must be served through HTTPS.
 
+On desktop, hold the right mouse button and drag, or use the arrow keys, to look around the floating information arc. The left mouse button remains dedicated to controls and shield dragging.
+
 If you use pnpm instead:
 
 ```sh
@@ -34,9 +36,10 @@ Do not open `index.html` directly from the filesystem; modules and the service w
 2. Click any experiment control once to let the browser initialise sound, or select **Enable sound**.
 3. Select Alpha, Beta and Gamma independently. The app prevents all three from being switched off.
 4. Drag paper, aluminium or lead from the rack across the visible particle beam. The shielding effect, particle absorption and GM response update while you move it; no hidden drop position is required. Release anywhere that the plate spans the beam to leave it there, or release near the centre holder to snap it neatly into place.
-5. Use **Show particle paths** to hide only the trails. Particle motion and the count model continue unchanged.
-6. Read the most recent one-second count, cps, eight-second rolling average, active shield and selected sources beside the GM tube.
-7. Use **No shield** to return the active shield to the rack, or **Reset** to restore Alpha-only, no shield, paths on and sound on. Resetting the experiment does not clear the offline-ready installation status.
+5. Use **Radiation visuals** to hide or reveal both the particle/wave models and their trails. While hidden, the particles still move internally and the GM model continues unchanged; source names and outcome answers are masked so students can infer the radiation from shielding evidence.
+6. Use **Hide controls** after choosing the source combination to conceal the source and experiment control panel. The separate **Show controls** button remains available.
+7. Turn slightly right to read the large 0–100 cps analogue meter, current cps, most recent one-second count, eight-second rolling average and active shield. Turn left for the enlarged floating legend and explanation panels.
+8. Use **No shield** to return the active shield to the rack, or **Reset** to restore Alpha-only, no shield, radiation visuals on, controls visible and sound on. Resetting the experiment does not clear the offline-ready installation status.
 
 The GM tube reports a total count. It does not identify which radiation type caused an event.
 
@@ -47,7 +50,7 @@ All editable teaching values live in [`js/config.js`](js/config.js):
 - shield transmission factors;
 - alpha, beta and gamma unshielded base count rates;
 - background count rate;
-- rolling-average duration and maximum audible click rate;
+- rolling-average duration, analogue-meter range and maximum audible click rate;
 - particle colours, lanes, speeds, emission intervals and pool sizes;
 - apparatus positions, live beam-intersection tolerance and shield snap distance.
 
@@ -69,7 +72,7 @@ The counter samples a Poisson-style stochastic process once per second. Numerica
 
 - `index.html` contains one procedural A-Frame laboratory scene with no locomotion.
 - `js/state.js` owns the single application state and its invariants.
-- `js/radiation-emitter.js` defines reusable alpha, beta and gamma A-Frame models, distinct trails and fixed-size object pools.
+- `js/radiation-emitter.js` defines reusable alpha, beta and gamma A-Frame models, distinct trails, mystery-mode visual hiding and fixed-size object pools.
 - `js/shield-interaction.js` handles mouse/controller ray grabbing, real-time beam intersection, optional holder snap, replacement and safe rack return without a physics engine.
 - `js/gm-counter.js` handles stochastic counts, the rolling average and synthesised clicks.
 - `js/ui-controller.js` renders every control, detector line and explanation from shared state.
@@ -85,13 +88,13 @@ npm test
 npm run check
 ```
 
-`npm test` covers the shielding rules, arbitrary live positions across the beam, non-beam rejection, background, additive sources, all seven non-empty source combinations, all-off prevention, reset, shield changes, path/count independence, single active shield state and deterministic seeded randomness.
+`npm test` covers the shielding rules, arbitrary live positions across the beam, non-beam rejection, background, additive sources, all seven non-empty source combinations, all-off prevention, reset, shield changes, visual/count independence, control-panel visibility, single active shield state and deterministic seeded randomness.
 
 `npm run check` additionally confirms that every required local runtime asset exists, the A-Frame bundle is local and complete, authored runtime files contain no CDN dependency, and the offline app shell includes every runtime file.
 
 `npm run build` creates a classroom handoff package in `dist/`. It includes the deployable `client/` site, a Mac test launcher and the Chinese `部署与测试指南.md` covering Mac, HTTPS and Quest verification.
 
-For a desktop smoke test, open the local URL, watch the count change, toggle every source, slowly drag each shield across several points in the beam and confirm the live label/count response, toggle paths, test sound and reset. Browser developer tools should show no blocking errors and no external network request.
+For a desktop smoke test, open the local URL, watch the analogue meter and count change, toggle every source, slowly drag each shield across several points in the beam and confirm the live label/count response, hide/reveal radiation visuals, hide/show controls, test sound and reset. Browser developer tools should show no blocking errors and no external network request.
 
 ## HTTPS deployment for Quest
 

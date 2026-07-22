@@ -4,6 +4,10 @@ import { describeOutcome } from './physics-model.js';
 const ACTIVE_COLOR = '#1f7a5a';
 const INACTIVE_COLOR = '#243149';
 const ACTION_COLOR = '#315178';
+const CONTROL_BUTTON_IDS = [
+  'alpha-button', 'beta-button', 'gamma-button', 'paths-button',
+  'sound-button', 'remove-button', 'reset-button'
+];
 
 function setText(id, value) {
   const element = document.getElementById(id);
@@ -60,6 +64,15 @@ export class UIController {
         break;
       case 'toggle-paths':
         this.appState.togglePaths();
+        this.showToast(this.appState.snapshot().showPaths
+          ? 'Radiation models and paths revealed.'
+          : 'Mystery mode: radiation models and paths hidden.');
+        break;
+      case 'toggle-controls':
+        this.appState.toggleControls();
+        this.showToast(this.appState.snapshot().controlsVisible
+          ? 'Source and experiment controls shown.'
+          : 'Source and experiment controls hidden.');
         break;
       case 'toggle-sound':
         if (this.appState.snapshot().soundEnabled && !audioWasReady) {
@@ -91,7 +104,13 @@ export class UIController {
       setText(`${type}-button-label`, `${active ? '[ON]' : '[OFF]'} ${RADIATION_CONFIG[type].label}`);
     }
 
-    this.#updateToggle('paths-button', 'paths-button-label', state.showPaths, 'Paths');
+    this.#updateToggle(
+      'paths-button',
+      'paths-button-label',
+      state.showPaths,
+      state.showPaths ? '[VISIBLE] Radiation' : '[HIDDEN] Radiation',
+      true
+    );
     const soundLabel = state.soundEnabled
       ? (this.gmCounter.audioReady ? '[ON] Sound' : '[ON] Enable sound')
       : '[OFF] Sound';
@@ -101,22 +120,46 @@ export class UIController {
       document.getElementById(id)?.setAttribute('material', 'color', ACTION_COLOR);
     }
 
+    document.getElementById('control-panel')?.setAttribute('visible', state.controlsVisible);
+    for (const id of CONTROL_BUTTON_IDS) {
+      document.getElementById(id)?.classList.toggle('interactive', state.controlsVisible);
+    }
+    document.getElementById('controls-toggle-button')?.setAttribute(
+      'material',
+      'color',
+      state.controlsVisible ? ACTION_COLOR : ACTIVE_COLOR
+    );
+    setText('controls-toggle-label', state.controlsVisible ? '[HIDE] CONTROLS' : '[SHOW] CONTROLS');
+
     const shieldLabel = state.activeShield === 'none'
       ? 'NO SHIELD'
       : state.activeShield.toUpperCase();
     setText('active-shield-label', `LIVE SHIELD: ${shieldLabel}`);
-    setText('count-display', String(Math.round(state.instantaneousCounts)).padStart(3, '0'));
-    setText('rate-display', `LAST 1 s: ${state.countRate.toFixed(0)} counts | ${state.countRate.toFixed(0)} cps`);
+    setText('count-display', `${Math.round(state.countRate)} CPS`);
+    setText('rate-display', `LAST 1 s: ${state.instantaneousCounts.toFixed(0)} COUNTS`);
     setText(
       'average-display',
-      `${PHYSICS_CONFIG.rollingAverageSeconds} s ROLLING AVG: ${state.rollingAverage.toFixed(1)} cps`
+      `${PHYSICS_CONFIG.rollingAverageSeconds} s AVG: ${state.rollingAverage.toFixed(1)} CPS`
     );
-    setText('gm-shield-display', `Shield: ${shieldLabel}`);
-    setText('gm-radiation-display', `Sources: ${selectedNames(state)}`);
+    setText('gm-shield-display', `SHIELD: ${shieldLabel}`);
+    setText(
+      'gm-radiation-display',
+      state.showPaths ? `SOURCES: ${selectedNames(state).toUpperCase()}` : 'SOURCES: HIDDEN - INFER FROM EVIDENCE'
+    );
 
-    const outcomes = RADIATION_TYPES
-      .filter((type) => state.selectedRadiation[type])
-      .map((type) => describeOutcome(type, state.activeShield));
+    const meterFraction = Math.min(1, state.countRate / PHYSICS_CONFIG.analogueMeterMaxCps);
+    const meterAngle = 70 - meterFraction * 140;
+    document.getElementById('gm-meter-needle')?.setAttribute('rotation', `0 0 ${meterAngle.toFixed(1)}`);
+
+    const outcomes = state.showPaths
+      ? RADIATION_TYPES
+        .filter((type) => state.selectedRadiation[type])
+        .map((type) => describeOutcome(type, state.activeShield))
+      : [
+        'MYSTERY MODE: RADIATION VISUALS ARE HIDDEN.',
+        'USE THE SHIELDS AND GM RATE TO INFER THE SOURCE.',
+        'REVEAL THE VISUALS WHEN THE CLASS IS READY.'
+      ];
     for (let index = 0; index < 3; index += 1) {
       setText(`outcome-line-${index + 1}`, outcomes[index] || '');
     }

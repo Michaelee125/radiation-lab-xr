@@ -130,7 +130,7 @@ export function registerRadiationComponents() {
       this.unsubscribe = window.radiationLab.state.subscribe(({ state }) => {
         this.latestState = state;
         for (const type of RADIATION_TYPES) {
-          for (const particle of this.pools[type]) this._setTrail(particle, state.showPaths);
+          for (const particle of this.pools[type]) this._setVisuals(particle, state.showPaths);
         }
       });
     },
@@ -166,8 +166,7 @@ export function registerRadiationComponents() {
       particle.x = SCENE_CONFIG.sourceX;
       particle.el.object3D.position.set(particle.x, RADIATION_CONFIG[type].laneY, 0);
       particle.el.object3D.scale.setScalar(1);
-      particle.el.setAttribute('visible', true);
-      this._setTrail(particle, this.latestState.showPaths);
+      this._setVisuals(particle, this.latestState.showPaths);
     },
 
     _advance(particle, deltaMs) {
@@ -199,15 +198,16 @@ export function registerRadiationComponents() {
       if (particle.x >= SCENE_CONFIG.particleEndX) this._release(particle);
     },
 
-    _setTrail(particle, visible) {
-      particle.el.components['particle-trail']?.setVisible(Boolean(visible && particle.active));
+    _setVisuals(particle, visible) {
+      const showParticle = Boolean(visible && particle.active);
+      particle.el.setAttribute('visible', showParticle);
+      particle.el.components['particle-trail']?.setVisible(showParticle);
     },
 
     _release(particle) {
       particle.active = false;
-      particle.el.setAttribute('visible', false);
       particle.el.object3D.scale.setScalar(1);
-      this._setTrail(particle, false);
+      this._setVisuals(particle, false);
     }
   });
 }

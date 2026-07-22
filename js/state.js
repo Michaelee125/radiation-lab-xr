@@ -61,6 +61,15 @@ export class AppState extends EventTarget {
     this.setPaths(!this.value.showPaths);
   }
 
+  setControlsVisible(visible) {
+    this.value.controlsVisible = Boolean(visible);
+    this.#notify('controlsVisible');
+  }
+
+  toggleControls() {
+    this.setControlsVisible(!this.value.controlsVisible);
+  }
+
   setSound(enabled) {
     this.value.soundEnabled = Boolean(enabled);
     this.#notify('soundEnabled');

@@ -30,10 +30,11 @@ const html = await readFile('index.html', 'utf8');
 for (const marker of [
   'alpha-particle-model', 'beta-particle-model', 'gamma-particle-model',
   'paper-shield', 'aluminium-shield', 'lead-shield', 'quest-shield-grab',
-  'Show particle paths', 'EXAM MODEL: LEAD MAKES THE GM READING ZERO (BACKGROUND OMITTED).'
+  'controls-toggle-button', 'gm-analogue-meter', 'desktop-right-drag-look', 'Radiation visuals',
+  'EXAM MODEL: LEAD MAKES THE GM READING ZERO (BACKGROUND OMITTED).'
 ]) {
-  if (marker === 'Show particle paths') {
-    assert.match(await readFile('README.md', 'utf8'), /Show particle paths/i);
+  if (marker === 'Radiation visuals') {
+    assert.match(await readFile('README.md', 'utf8'), /radiation visuals/i);
   } else {
     assert.match(html + await readFile('js/radiation-emitter.js', 'utf8'), new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   }
