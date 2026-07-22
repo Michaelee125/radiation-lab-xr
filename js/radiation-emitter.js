@@ -107,7 +107,7 @@ function createParticle(type, parent) {
     type,
     active: false,
     x: SCENE_CONFIG.sourceX,
-    crossedShield: false,
+    encounteredShields: new Set(),
     absorbing: false,
     absorbElapsed: 0
   };
@@ -160,7 +160,7 @@ export function registerRadiationComponents() {
       const particle = this.pools[type].find((candidate) => !candidate.active);
       if (!particle) return;
       particle.active = true;
-      particle.crossedShield = false;
+      particle.encounteredShields.clear();
       particle.absorbing = false;
       particle.absorbElapsed = 0;
       particle.x = SCENE_CONFIG.sourceX;
@@ -182,12 +182,17 @@ export function registerRadiationComponents() {
 
       const previousX = particle.x;
       particle.x += RADIATION_CONFIG[particle.type].speed * (deltaMs / 1000);
-      if (!particle.crossedShield && previousX < SCENE_CONFIG.shieldX && particle.x >= SCENE_CONFIG.shieldX) {
-        particle.crossedShield = true;
-        const shield = this.latestState.activeShield;
-        if (!shouldTransmit(shield, particle.type)) {
-          particle.x = SCENE_CONFIG.shieldX - 0.07;
-          particle.absorbing = true;
+      const interaction = this.el.sceneEl.systems['shield-manager']?.getActiveInteraction();
+      if (interaction && !particle.encounteredShields.has(interaction.type)) {
+        const shieldStartX = interaction.x - interaction.halfX;
+        const shieldEndX = interaction.x + interaction.halfX;
+        const intersectsShield = previousX <= shieldEndX && particle.x >= shieldStartX;
+        if (intersectsShield) {
+          particle.encounteredShields.add(interaction.type);
+          if (!shouldTransmit(interaction.type, particle.type)) {
+            particle.x = shieldStartX - 0.03;
+            particle.absorbing = true;
+          }
         }
       }
       particle.el.object3D.position.x = particle.x;

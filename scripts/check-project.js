@@ -30,7 +30,7 @@ const html = await readFile('index.html', 'utf8');
 for (const marker of [
   'alpha-particle-model', 'beta-particle-model', 'gamma-particle-model',
   'paper-shield', 'aluminium-shield', 'lead-shield', 'quest-shield-grab',
-  'Show particle paths', 'Gamma radiation is attenuated rather than completely stopped.'
+  'Show particle paths', 'EXAM MODEL: LEAD MAKES THE GM READING ZERO (BACKGROUND OMITTED).'
 ]) {
   if (marker === 'Show particle paths') {
     assert.match(await readFile('README.md', 'utf8'), /Show particle paths/i);

@@ -10,8 +10,12 @@ export class GMCounter extends EventTarget {
     this.timer = null;
     this.audioContext = null;
     this.audioReady = false;
-    this.unsubscribe = appState.subscribe(({ reason }) => {
+    this.unsubscribe = appState.subscribe(({ state, reason }) => {
       if (reason === 'reset') this.history.length = 0;
+      if (reason === 'activeShield') {
+        if (state.activeShield === 'lead') this.history.length = 0;
+        if (this.timer) this.sample();
+      }
     });
   }
 

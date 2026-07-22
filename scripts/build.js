@@ -1,4 +1,4 @@
-import { cp, mkdir, rm, writeFile } from 'node:fs/promises';
+import { chmod, cp, mkdir, rm, writeFile } from 'node:fs/promises';
 
 const runtimeEntries = [
   'index.html',
@@ -17,6 +17,13 @@ await mkdir('dist/server', { recursive: true });
 for (const entry of runtimeEntries) {
   await cp(entry, `dist/client/${entry}`, { recursive: true });
 }
+await rm('dist/client/assets/.DS_Store', { force: true });
+
+await cp('README.md', 'dist/README.md');
+await cp('docs/部署与测试指南.md', 'dist/部署与测试指南.md');
+await cp('scripts/server.js', 'dist/mac-test-server.mjs');
+await cp('scripts/启动-Mac-测试.command', 'dist/启动-Mac-测试.command');
+await chmod('dist/启动-Mac-测试.command', 0o755);
 
 const worker = `export default {
   async fetch(request, env) {
@@ -31,4 +38,4 @@ const worker = `export default {
 `;
 
 await writeFile('dist/server/index.js', worker);
-console.log('Built static WebXR site in dist/client with a Cloudflare-compatible worker entry.');
+console.log('Built the deployable WebXR package in dist with Mac test launcher and Chinese guide.');

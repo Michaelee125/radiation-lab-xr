@@ -1,4 +1,40 @@
-import { PHYSICS_CONFIG, RADIATION_TYPES } from './config.js';
+import {
+  PHYSICS_CONFIG,
+  RADIATION_CONFIG,
+  RADIATION_TYPES,
+  SCENE_CONFIG
+} from './config.js';
+
+/**
+ * A material is effective anywhere it physically spans the schematic beam between
+ * the source and GM tube. Requiring the plate to cover all three lane centres keeps
+ * the single active-shield reading consistent for every selected radiation type.
+ */
+export function isShieldInBeam(
+  position,
+  halfExtents,
+  sceneConfig = SCENE_CONFIG,
+  radiationConfig = RADIATION_CONFIG
+) {
+  if (![position?.x, position?.y, position?.z, halfExtents?.x, halfExtents?.y, halfExtents?.z]
+    .every(Number.isFinite)) return false;
+
+  const beamStartX = Math.min(sceneConfig.sourceX, sceneConfig.particleEndX);
+  const beamEndX = Math.max(sceneConfig.sourceX, sceneConfig.particleEndX);
+  const laneYs = RADIATION_TYPES.map((type) => radiationConfig[type].laneY);
+  const lowestLaneY = Math.min(...laneYs);
+  const highestLaneY = Math.max(...laneYs);
+  const radius = sceneConfig.beamInteractionRadius;
+
+  const overlapsBeamLength = position.x + halfExtents.x >= beamStartX
+    && position.x - halfExtents.x <= beamEndX;
+  const spansLaneHeight = position.y - halfExtents.y <= lowestLaneY + radius
+    && position.y + halfExtents.y >= highestLaneY - radius;
+  const overlapsBeamDepth = Math.abs(position.z - sceneConfig.apparatusZ)
+    <= halfExtents.z + radius;
+
+  return overlapsBeamLength && spansLaneHeight && overlapsBeamDepth;
+}
 
 export function getTransmission(shield, radiation, config = PHYSICS_CONFIG) {
   const value = config.transmission?.[shield]?.[radiation];
@@ -15,7 +51,8 @@ export function expectedCountRate(selectedRadiation, shield, config = PHYSICS_CO
     if (!selectedRadiation[type]) return total;
     return total + config.baseCountRates[type] * getTransmission(shield, type, config);
   }, 0);
-  return sourceRate + config.backgroundCountRate;
+  const backgroundTransmission = config.backgroundTransmission?.[shield] ?? 1;
+  return sourceRate + config.backgroundCountRate * backgroundTransmission;
 }
 
 export function poissonSample(lambda, random = Math.random) {

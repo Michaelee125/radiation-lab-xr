@@ -104,7 +104,7 @@ export class UIController {
     const shieldLabel = state.activeShield === 'none'
       ? 'NO SHIELD'
       : state.activeShield.toUpperCase();
-    setText('active-shield-label', `ACTIVE SHIELD: ${shieldLabel}`);
+    setText('active-shield-label', `LIVE SHIELD: ${shieldLabel}`);
     setText('count-display', String(Math.round(state.instantaneousCounts)).padStart(3, '0'));
     setText('rate-display', `LAST 1 s: ${state.countRate.toFixed(0)} counts | ${state.countRate.toFixed(0)} cps`);
     setText(

@@ -29,7 +29,7 @@ Do not open `index.html` directly from the filesystem; modules and the service w
 1. Open the app and wait for **Offline ready**.
 2. Click any experiment control once to let the browser initialise sound, or select **Enable sound**.
 3. Select Alpha, Beta and Gamma independently. The app prevents all three from being switched off.
-4. Drag paper, aluminium or lead from the rack into the centre holder. In VR, point at a material, hold the trigger, point at the holder, and release.
+4. Drag paper, aluminium or lead from the rack across the visible particle beam. The shielding effect, particle absorption and GM response update while you move it; no hidden drop position is required. Release anywhere that the plate spans the beam to leave it there, or release near the centre holder to snap it neatly into place.
 5. Use **Show particle paths** to hide only the trails. Particle motion and the count model continue unchanged.
 6. Read the most recent one-second count, cps, eight-second rolling average, active shield and selected sources beside the GM tube.
 7. Use **No shield** to return the active shield to the rack, or **Reset** to restore Alpha-only, no shield, paths on and sound on. Resetting the experiment does not clear the offline-ready installation status.
@@ -45,17 +45,19 @@ All editable teaching values live in [`js/config.js`](js/config.js):
 - background count rate;
 - rolling-average duration and maximum audible click rate;
 - particle colours, lanes, speeds, emission intervals and pool sizes;
-- apparatus positions and shield snap distance.
+- apparatus positions, live beam-intersection tolerance and shield snap distance.
 
-`js/physics-model.js` is the only module that interprets those factors. Particle transmission, live explanations and expected GM count rates all call the same functions. Visual transmission is sampled at the shield; the numerical GM reading uses the same transmission probability as an expected rate.
+`js/physics-model.js` is the only module that interprets those factors. It also defines the testable beam-intersection rule. A plate becomes effective anywhere between the source and detector when it visibly spans all three schematic lanes. Particle transmission is sampled at that plate's actual horizontal position, while the live explanation and numerical GM reading use the same material transmission probability.
 
 The simplified model enforces these teaching outcomes:
 
 - paper stops alpha;
 - beta mostly passes paper and is strongly reduced by aluminium;
 - gamma mostly passes paper and aluminium;
-- lead substantially attenuates gamma but never reduces it to zero;
-- background counts remain even when the selected source is fully blocked.
+- in this exam-syllabus simplification, the lead plate completely stops all three source types;
+- background counts remain when radiation is blocked by paper or aluminium, but are deliberately omitted with lead so the GM display reads exactly zero.
+
+The lead rule is a deliberate syllabus-level teaching simplification. A real lead shield attenuates gamma according to its thickness and photon energy, and a real GM tube may still register background radiation. This classroom model treats the lead plate as a complete stop and suppresses background while it is active so the particle visuals, explanation and displayed reading all reach zero together.
 
 The counter samples a Poisson-style stochastic process once per second. Numerical counts are never capped. Locally generated Web Audio clicks are capped at 18 per second to avoid an overwhelming or distorted sound.
 
@@ -64,7 +66,7 @@ The counter samples a Poisson-style stochastic process once per second. Numerica
 - `index.html` contains one procedural A-Frame laboratory scene with no locomotion.
 - `js/state.js` owns the single application state and its invariants.
 - `js/radiation-emitter.js` defines reusable alpha, beta and gamma A-Frame models, distinct trails and fixed-size object pools.
-- `js/shield-interaction.js` handles mouse/controller ray grabbing, release, snap, replacement and safe rack return without a physics engine.
+- `js/shield-interaction.js` handles mouse/controller ray grabbing, real-time beam intersection, optional holder snap, replacement and safe rack return without a physics engine.
 - `js/gm-counter.js` handles stochastic counts, the rolling average and synthesised clicks.
 - `js/ui-controller.js` renders every control, detector line and explanation from shared state.
 - `js/quest-controls.js` provides controller connection feedback; A-Frame laser controls supply both controller rays.
@@ -79,11 +81,13 @@ npm test
 npm run check
 ```
 
-`npm test` covers the shielding rules, background, additive sources, all seven non-empty source combinations, all-off prevention, reset, shield changes, path/count independence, single active shield state and deterministic seeded randomness.
+`npm test` covers the shielding rules, arbitrary live positions across the beam, non-beam rejection, background, additive sources, all seven non-empty source combinations, all-off prevention, reset, shield changes, path/count independence, single active shield state and deterministic seeded randomness.
 
 `npm run check` additionally confirms that every required local runtime asset exists, the A-Frame bundle is local and complete, authored runtime files contain no CDN dependency, and the offline app shell includes every runtime file.
 
-For a desktop smoke test, open the local URL, watch the count change, toggle every source, drag each shield, toggle paths, test sound and reset. Browser developer tools should show no blocking errors and no external network request.
+`npm run build` creates a classroom handoff package in `dist/`. It includes the deployable `client/` site, a Mac test launcher and the Chinese `部署与测试指南.md` covering Mac, HTTPS and Quest verification.
+
+For a desktop smoke test, open the local URL, watch the count change, toggle every source, slowly drag each shield across several points in the beam and confirm the live label/count response, toggle paths, test sound and reset. Browser developer tools should show no blocking errors and no external network request.
 
 ## HTTPS deployment for Quest
 

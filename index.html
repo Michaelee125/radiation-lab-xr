@@ -18,7 +18,7 @@
         <span class="brand-mark" aria-hidden="true">XR</span>
         <div>
           <strong>Radiation Lab</strong>
-          <span>Click controls. Drag a shield into the centre holder. Use Enter VR on Quest.</span>
+          <span>Click controls. Drag a shield anywhere across the beam for a live effect. Use Enter VR on Quest.</span>
         </div>
       </div>
       <div id="offline-status" role="status" aria-live="polite" data-ready="false">Preparing offline use…</div>
@@ -111,12 +111,14 @@
           <a-box position="0 1.38 -2.7" width="0.07" height="0.65" depth="0.07" color="#4a6078"></a-box>
           <a-box position="0 1.38 -2" width="0.07" height="0.65" depth="0.07" color="#4a6078"></a-box>
           <a-box position="0 1.06 -2.35" width="0.22" height="0.06" depth="0.78" color="#4a6078"></a-box>
-          <a-text id="active-shield-label" mixin="local-font" position="0 1.9 -2.35" width="1.15" value="ACTIVE SHIELD: NO SHIELD"></a-text>
+          <a-text id="active-shield-label" mixin="local-font" position="0 1.9 -2.35" width="1.35" value="LIVE SHIELD: NO SHIELD"></a-text>
+          <a-text mixin="local-font" position="0 1.78 -2.35" width="1.25" color="#76efb6"
+            value="LIVE ANYWHERE ACROSS THE BEAM"></a-text>
         </a-entity>
 
         <a-entity id="material-rack">
           <a-box position="0 0.72 -1.76" width="1.75" height="0.09" depth="0.64" color="#2b3d51"></a-box>
-          <a-text mixin="local-font" position="0 0.7 -1.42" rotation="-65 0 0" width="1.15" value="SHIELD RACK - DRAG TO HOLDER"></a-text>
+          <a-text mixin="local-font" position="0 0.7 -1.42" rotation="-65 0 0" width="1.35" value="SHIELD RACK - DRAG ACROSS BEAM"></a-text>
 
           <a-entity id="paper-shield" class="shield-interactable" position="-0.56 0.82 -1.76"
             geometry="primitive: box; width: 0.025; height: 0.42; depth: 0.48"
@@ -152,8 +154,8 @@
           <a-text id="outcome-line-1" mixin="local-font" position="0 0.075 0.01" width="1.85" value="Alpha reaches the detector without shielding."></a-text>
           <a-text id="outcome-line-2" mixin="local-font" position="0 -0.015 0.01" width="1.85" value=""></a-text>
           <a-text id="outcome-line-3" mixin="local-font" position="0 -0.105 0.01" width="1.85" value=""></a-text>
-          <a-text mixin="local-font" position="0 -0.195 0.01" width="1.75" color="#d998ff"
-            value="Gamma radiation is attenuated rather than completely stopped."></a-text>
+          <a-text mixin="local-font" position="0 -0.195 0.01" width="1.9" color="#d998ff"
+            value="EXAM MODEL: LEAD MAKES THE GM READING ZERO (BACKGROUND OMITTED)."></a-text>
         </a-entity>
 
         <a-entity id="camera-rig" position="0 0 0.75">

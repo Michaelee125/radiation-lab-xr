@@ -7,10 +7,13 @@ export const PHYSICS_CONFIG = Object.freeze({
     none: Object.freeze({ alpha: 1.0, beta: 1.0, gamma: 1.0 }),
     paper: Object.freeze({ alpha: 0.0, beta: 0.95, gamma: 0.98 }),
     aluminium: Object.freeze({ alpha: 0.0, beta: 0.05, gamma: 0.9 }),
-    lead: Object.freeze({ alpha: 0.0, beta: 0.02, gamma: 0.2 })
+    // Exam-syllabus simplification: the lead plate fully blocks every source type.
+    lead: Object.freeze({ alpha: 0.0, beta: 0.0, gamma: 0.0 })
   }),
   baseCountRates: Object.freeze({ alpha: 18, beta: 28, gamma: 34 }),
   backgroundCountRate: 1.4,
+  // Lead is also treated as suppressing the background so the classroom GM display is exactly zero.
+  backgroundTransmission: Object.freeze({ none: 1.0, paper: 1.0, aluminium: 1.0, lead: 0.0 }),
   rollingAverageSeconds: 8,
   maximumAudibleClicksPerSecond: 18
 });
@@ -50,7 +53,6 @@ export const RADIATION_CONFIG = Object.freeze({
 
 export const SCENE_CONFIG = Object.freeze({
   sourceX: -1.78,
-  shieldX: 0,
   detectorX: 1.72,
   apparatusZ: -2.35,
   particleEndX: 1.58,
@@ -61,6 +63,9 @@ export const SCENE_CONFIG = Object.freeze({
     lead: Object.freeze({ x: 0.56, y: 0.82, z: -1.76 })
   }),
   holderPosition: Object.freeze({ x: 0, y: 1.42, z: -2.35 }),
+  // A shield becomes live wherever it spans the complete three-lane beam ribbon
+  // between the source and detector. This tolerance keeps placement forgiving in VR.
+  beamInteractionRadius: 0.045,
   shieldSnapDistance: 0.6,
   grabDistance: 1.45
 });
